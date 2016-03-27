@@ -28,8 +28,9 @@ package org.decampo.examples.collections;
 
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.stream.Stream;
 import org.apache.commons.collections4.SetValuedMap;
-import org.junit.Assert;
+import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 
 /**
@@ -38,7 +39,7 @@ import org.junit.Test;
  */
 public class MoreCollectorsTest
 {
-    private static String[][] DATA = {
+    private static final String[][] DATA = {
         {"red", "orange", "yellow", "green", "blue", "violet"},
         {"george", "john", "thomas", "james", "james", "john", "andrew"},
         {"one"},
@@ -60,11 +61,61 @@ public class MoreCollectorsTest
         // Now we verify 
         Arrays.stream(DATA)
             .forEach(arr -> {
-                Assert.assertEquals(
+                assertEquals(
                     // a set containing the elements of the array
                     new HashSet<>(Arrays.asList(arr)),
                     // equals the set corresponding to the first element
                     result.get(arr[0]));
             });
+    }
+    
+    @Test
+    public void groupingByDistinctTest() throws Exception {
+        final Num[] english = {
+            new Num(0, "zero"), new Num(1, "one"), new Num(2, "two")
+        };
+        final Num[] espanol = {
+            new Num(0, "cero"), new Num(1, "uno"), new Num(2, "dos")
+        };
+        final Num[] deutsche = {
+            new Num(0, "null"), new Num(1, "eins"), new Num(2, "zwei")
+        };
+        
+        final SetValuedMap<Integer, Num> result = 
+            Stream.of(english, espanol, deutsche)
+                .flatMap(Arrays::stream)
+                .collect(MoreCollectors.groupingByDistinct(Num::getValue));
+        
+        assertEquals(new HashSet<>(Arrays.asList(0, 1, 2)),  result.keySet());
+        assertEquals(
+            new HashSet<>(Arrays.asList(english[0], espanol[0], deutsche[0])), 
+            result.get(0));
+        assertEquals(
+            new HashSet<>(Arrays.asList(english[1], espanol[1], deutsche[1])), 
+            result.get(1));
+        assertEquals(
+            new HashSet<>(Arrays.asList(english[2], espanol[2], deutsche[2])), 
+            result.get(2));
+    }
+    
+    private static class Num {
+        final int value;
+        final String name;
+
+        public Num(int value, String name)
+        {
+            this.value = value;
+            this.name = name;
+        }
+
+        public int getValue()
+        {
+            return value;
+        }
+
+        public String getName()
+        {
+            return name;
+        }
     }
 }
