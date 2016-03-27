@@ -52,7 +52,8 @@ public class MoreCollectorsTest
         // array and the set contains all the elements of the array
         final SetValuedMap<String,String> result = Arrays.stream(DATA)
             // convert to arrays of length two
-            .flatMap(arr -> Arrays.stream(arr).map(s -> new String[] { arr[0], s }))
+            .flatMap(arr -> Arrays.stream(arr).map(
+                s -> new String[] { arr[0], s }))
             // Now collect the 2-element arrays into a map
             .collect(MoreCollectors.toSetValuedMap(
                 arr -> arr[0], 
@@ -82,7 +83,7 @@ public class MoreCollectorsTest
         };
         
         final SetValuedMap<Integer, Num> result = 
-            Stream.of(english, espanol, deutsche)
+            Stream.of(english, espanol, deutsche, espanol, english)
                 .flatMap(Arrays::stream)
                 .collect(MoreCollectors.groupingByDistinct(Num::getValue));
         
